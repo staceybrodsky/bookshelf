@@ -28,11 +28,19 @@ type AddBookResponse struct {
 }
 
 func (ls *LibraryService) AddBook(ctx context.Context, req AddBookRequest) (*AddBookResponse, error) {
+	if req.Title == "" {
+		return nil, fmt.Errorf("add book: title can't be blank")
+	}
+	if req.Author == "" {
+		return nil, fmt.Errorf("add book: author can't be blank")
+	}
+
 	book, err := ls.Store.CreateBook(ctx, req.Title, req.Author)
 	if err != nil {
 		return nil, fmt.Errorf("add book: %w", err)
 	}
 	log.Printf("added book %d: %s\n", book.ID, book.Title)
+
 	return &AddBookResponse{Book: book}, nil
 }
 
@@ -45,11 +53,16 @@ type GetBookResponse struct {
 }
 
 func (ls *LibraryService) GetBook(ctx context.Context, req GetBookRequest) (*GetBookResponse, error) {
+	if req.ID == 0 {
+		return nil, fmt.Errorf("get book: id is required")
+	}
+
 	book, err := ls.Store.GetBook(ctx, req.ID)
 	if err != nil {
 		return nil, fmt.Errorf("get book: %w", err)
 	}
 	log.Printf("got book %d: %s\n", book.ID, book.Title)
+
 	return &GetBookResponse{Book: book}, nil
 }
 
